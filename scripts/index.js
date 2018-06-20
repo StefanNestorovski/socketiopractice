@@ -29,9 +29,10 @@ socket.on('update', function(data){
 	
 	for(var i = 0; i < data.idNum; i++){
 		if(data.socketAlive[i]){
-			ctx.beginPath();
-			ctx.arc(data.socketsX[i], data.socketsY[i], 40, 0, 2 * Math.PI);
-			ctx.stroke();
+			ctx.fillStyle = 'black';
+			ctx.fillRect(data.socketsX[i], data.socketsY[i], 20, 60);
 		}
 	}
+	ctx.fillStyle = 'green';
+	ctx.fillRect(0, 400, canvas.width, canvas.height - 400);
 });

@@ -13,6 +13,8 @@ http.listen(port, function() {
 
 var socketsX = [];
 var socketsY = [];
+var socketsVX = [];
+var socketsVY = [];
 var socketAlive = [];
 
 var idNum = 0;
@@ -24,6 +26,9 @@ io.on('connection', function(socket){
 	socket.idVal = idNum;
 	socketsX.push(x);
 	socketsY.push(y);
+	socketsVX.push(0);
+	socketsVY.push(0);
+	
 	socketAlive.push(true);
 	id.push(idNum++);
 	
@@ -34,17 +39,24 @@ io.on('connection', function(socket){
 		socketsX[socket.idVal]--;
 	});
 	socket.on('goUp', function(){
-		socketsY[socket.idVal]--;
+		socketsVY[socket.idVal] += -3;
 	});
-	socket.on('goDown', function(){
+	/*socket.on('goDown', function(){
 		socketsY[socket.idVal]++;
-	});
+	});*/
 	
 	socket.on('disconnect', function(){
 		socketAlive[socket.idVal] = false;
 	});
 	
 	setInterval(function(){
+		for(var i = 0; i < idNum; i++){
+			socketsY[i] += socketsVY[i];
+			socketsVY[i] = socketsY[i] <= (400 - 60) ? ++socketsVY[i] : 0;
+			if(socketsY[i] > (400 - 60)){
+				socketsY[i] = (400 - 60);
+			}
+		}
 		socket.emit('update', {socketsX,socketsY,socketAlive,idNum});
 	}, 100);
 });
