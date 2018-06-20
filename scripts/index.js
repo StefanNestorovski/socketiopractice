@@ -26,7 +26,10 @@ setInterval(function(){
 
 socket.on('update', function(data){
 	ctx.clearRect(0, 0, c.width, c.height);
-	ctx.beginPath();
-	ctx.arc(data.x, data.y, 40, 0, 2 * Math.PI);
-	ctx.stroke();
+	
+	for(var i = 0; i < data.idNum; i++){
+		ctx.beginPath();
+		ctx.arc(data.socketsX[i], data.socketsY[i], 40, 0, 2 * Math.PI);
+		ctx.stroke();
+	}
 });
