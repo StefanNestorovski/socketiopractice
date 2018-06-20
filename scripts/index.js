@@ -28,8 +28,10 @@ socket.on('update', function(data){
 	ctx.clearRect(0, 0, c.width, c.height);
 	
 	for(var i = 0; i < data.idNum; i++){
-		ctx.beginPath();
-		ctx.arc(data.socketsX[i], data.socketsY[i], 40, 0, 2 * Math.PI);
-		ctx.stroke();
+		if(data.socketAlive[i]){
+			ctx.beginPath();
+			ctx.arc(data.socketsX[i], data.socketsY[i], 40, 0, 2 * Math.PI);
+			ctx.stroke();
+		}
 	}
 });

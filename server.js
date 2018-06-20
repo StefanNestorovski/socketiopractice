@@ -13,6 +13,7 @@ http.listen(port, function() {
 
 var socketsX = [];
 var socketsY = [];
+var socketAlive = [];
 
 var idNum = 0;
 var id = [];
@@ -20,25 +21,30 @@ var id = [];
 io.on('connection', function(socket){
 	var x = 50;
 	var y = 50;
-	idVal = idNum;
+	socket.idVal = idNum;
 	socketsX.push(x);
 	socketsY.push(y);
+	socketAlive.push(true);
 	id.push(idNum++);
 	
 	socket.on('goRight', function(){
-		socketsX[idVal]++;
+		socketsX[socket.idVal]++;
 	});
 	socket.on('goLeft', function(){
-		socketsX[idVal]--;
+		socketsX[socket.idVal]--;
 	});
 	socket.on('goUp', function(){
-		socketsY[idVal]--;
+		socketsY[socket.idVal]--;
 	});
 	socket.on('goDown', function(){
-		socketsY[idVal]++;
+		socketsY[socket.idVal]++;
+	});
+	
+	socket.on('disconnect', function(){
+		socketAlive[socket.idVal] = false;
 	});
 	
 	setInterval(function(){
-		socket.emit('update', {socketsX,socketsY, idNum});
+		socket.emit('update', {socketsX,socketsY,socketAlive,idNum});
 	}, 100);
 });
