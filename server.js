@@ -3,15 +3,32 @@ var express = require('express'),
     app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var x = 0;
+var port = process.env.PORT || 8000;
+
+var x = 50;
+var y = 50
 
 app.use('/', express.static(path.join(__dirname + '/')));
 
-http.listen(3000, function() {
+http.listen(port, function() {
   console.log('listening');
 });
 
+io.on('connection', function(socket){
+	socket.on('goRight', function(){
+		x++;
+	});
+	socket.on('goLeft', function(){
+		x--;
+	});
+	socket.on('goUp', function(){
+		y--;
+	});
+	socket.on('goDown', function(){
+		y++;
+	});
+});
+
 setInterval(function(){
-	x++;
-	io.emit('update', x);
-}, 1000);
+	io.emit('update', {x,y});
+}, 100);
