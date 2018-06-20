@@ -39,7 +39,7 @@ io.on('connection', function(socket){
 		socketsX[socket.idVal]--;
 	});
 	socket.on('goUp', function(){
-		socketsVY[socket.idVal] += -3;
+		socketsVY[socket.idVal] += -1;
 	});
 	/*socket.on('goDown', function(){
 		socketsY[socket.idVal]++;
