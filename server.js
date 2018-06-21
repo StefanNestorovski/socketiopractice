@@ -11,52 +11,84 @@ http.listen(port, function() {
   console.log('listening');
 });
 
-var socketsX = [];
-var socketsY = [];
-var socketsVX = [];
-var socketsVY = [];
-var socketAlive = [];
-
-var idNum = 0;
-var id = [];
+var players = [];
+var jumped = false;
 
 io.on('connection', function(socket){
-	var x = 50;
-	var y = 50;
-	socket.idVal = idNum;
-	socketsX.push(x);
-	socketsY.push(y);
-	socketsVX.push(0);
-	socketsVY.push(0);
+	console.log('Player joined');
 	
-	socketAlive.push(true);
-	id.push(idNum++);
+	socket.player = new player();
+	
+	players.push(socket.player);
 	
 	socket.on('goRight', function(){
-		socketsX[socket.idVal]++;
+		socket.player.moveRight();
 	});
 	socket.on('goLeft', function(){
-		socketsX[socket.idVal]--;
+		socket.player.moveLeft();
 	});
-	socket.on('goUp', function(){
-		socketsVY[socket.idVal] += -1;
+	socket.on('jump', function(){
+		if(socket.player.y >= (400 - 60))
+			socket.player.jump();
 	});
-	/*socket.on('goDown', function(){
-		socketsY[socket.idVal]++;
-	});*/
 	
 	socket.on('disconnect', function(){
-		socketAlive[socket.idVal] = false;
+		players.splice(players.indexOf(socket.player), 1 );
+		console.log('Player has left');
 	});
-	
-	setInterval(function(){
-		for(var i = 0; i < idNum; i++){
-			socketsY[i] += socketsVY[i];
-			socketsVY[i] = socketsY[i] <= (400 - 60) ? ++socketsVY[i] : 0;
-			if(socketsY[i] > (400 - 60)){
-				socketsY[i] = (400 - 60);
-			}
-		}
-		socket.emit('update', {socketsX,socketsY,socketAlive,idNum});
-	}, 100);
+
 });
+
+setInterval(function(){
+	for(var i = 0; i < players.length; i++){
+		players[i].gravity();
+	}
+	io.emit('update', players);
+	for(var i = 0; i < players.length; i++){
+		players[i].setPrev();
+	}
+}, 100);
+	
+setInterval(function(){
+		console.log(players.length + ' players on');
+	}, 5000);
+
+function player(){
+	var that = {};
+	that.prevx = 50;
+	that.prevy = 50;
+	that.x = 50;
+	that.y = 50;
+	that.vx = 0;
+	that.vy = 0;
+	that.speed = 10;
+	that.acc = 2;
+	
+	that.setPrev = function (){
+		that.prevx = that.x;
+		that.prevy = that.y;
+	}
+	
+	that.moveRight = function (){
+		that.x+=that.speed;
+	}
+	that.moveLeft = function (){
+		that.x-=that.speed;
+	}
+	that.jump = function (){
+		that.vy -= 25;
+	}
+	that.gravity = function() {
+		that.y += that.vy;
+		that.vy = that.y <= (400 - 60) ? that.vy+=that.acc : 0;
+		if(that.y > (400 - 60)){
+			that.y = (400 - 60);
+		}
+		that.vy = that.y <= (400 - 60) ? that.vy+=that.acc : 0;
+		if(that.y > (400 - 60)){
+			that.y = (400 - 60);
+		}
+	}
+	
+	return that;
+}
